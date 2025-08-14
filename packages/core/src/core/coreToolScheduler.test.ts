@@ -125,6 +125,7 @@ describe('CoreToolScheduler', () => {
       getUsageStatisticsEnabled: () => true,
       getDebugMode: () => false,
       getApprovalMode: () => ApprovalMode.DEFAULT,
+      getProjectTempDir: () => '/tmp',
       getContentGeneratorConfig: () => ({
         model: 'test-model',
         authType: 'oauth-personal',
@@ -185,6 +186,7 @@ describe('CoreToolScheduler with payload', () => {
       getUsageStatisticsEnabled: () => true,
       getDebugMode: () => false,
       getApprovalMode: () => ApprovalMode.DEFAULT,
+      getProjectTempDir: () => '/tmp',
       getContentGeneratorConfig: () => ({
         model: 'test-model',
         authType: 'oauth-personal',
@@ -231,7 +233,11 @@ describe('CoreToolScheduler with payload', () => {
       );
     }
 
-    expect(onAllToolCallsComplete).toHaveBeenCalled();
+    // Wait for the tool execution to complete
+    await vi.waitFor(() => {
+      expect(onAllToolCallsComplete).toHaveBeenCalled();
+    });
+
     const completedCalls = onAllToolCallsComplete.mock
       .calls[0][0] as ToolCall[];
     expect(completedCalls[0].status).toBe('success');
@@ -484,6 +490,7 @@ describe('CoreToolScheduler edit cancellation', () => {
       getUsageStatisticsEnabled: () => true,
       getDebugMode: () => false,
       getApprovalMode: () => ApprovalMode.DEFAULT,
+      getProjectTempDir: () => '/tmp',
       getContentGeneratorConfig: () => ({
         model: 'test-model',
         authType: 'oauth-personal',
@@ -576,6 +583,7 @@ describe('CoreToolScheduler YOLO mode', () => {
       getUsageStatisticsEnabled: () => true,
       getDebugMode: () => false,
       getApprovalMode: () => ApprovalMode.YOLO,
+      getProjectTempDir: () => '/tmp',
       getContentGeneratorConfig: () => ({
         model: 'test-model',
         authType: 'oauth-personal',
@@ -603,6 +611,11 @@ describe('CoreToolScheduler YOLO mode', () => {
     // Act
     await scheduler.schedule([request], abortController.signal);
 
+    // Wait for the tool execution to complete
+    await vi.waitFor(() => {
+      expect(onAllToolCallsComplete).toHaveBeenCalled();
+    });
+
     // Assert
     // 1. The tool's execute method was called directly.
     expect(mockTool.executeFn).toHaveBeenCalledWith({ param: 'value' });
@@ -620,7 +633,6 @@ describe('CoreToolScheduler YOLO mode', () => {
     ]);
 
     // 3. The final callback indicates the tool call was successful.
-    expect(onAllToolCallsComplete).toHaveBeenCalled();
     const completedCalls = onAllToolCallsComplete.mock
       .calls[0][0] as ToolCall[];
     expect(completedCalls).toHaveLength(1);
@@ -665,6 +677,7 @@ describe('CoreToolScheduler request queueing', () => {
       getUsageStatisticsEnabled: () => true,
       getDebugMode: () => false,
       getApprovalMode: () => ApprovalMode.YOLO, // Use YOLO to avoid confirmation prompts
+      getProjectTempDir: () => '/tmp',
       getContentGeneratorConfig: () => ({
         model: 'test-model',
         authType: 'oauth-personal',
@@ -778,6 +791,7 @@ describe('CoreToolScheduler request queueing', () => {
       getUsageStatisticsEnabled: () => true,
       getDebugMode: () => false,
       getApprovalMode: () => ApprovalMode.YOLO,
+      getProjectTempDir: () => '/tmp',
       getContentGeneratorConfig: () => ({
         model: 'test-model',
         authType: 'oauth-personal',
