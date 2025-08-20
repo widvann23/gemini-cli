@@ -138,8 +138,8 @@ describe('CoreToolScheduler', () => {
         authType: 'oauth-personal',
       }),
       storage: {
-      getProjectTempDir: () => '/tmp',
-    },
+        getProjectTempDir: () => '/tmp',
+      },
       getToolRegistry: () => mockToolRegistry,
     } as unknown as Config;
 
