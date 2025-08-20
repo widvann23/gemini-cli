@@ -133,11 +133,13 @@ describe('CoreToolScheduler', () => {
       getUsageStatisticsEnabled: () => true,
       getDebugMode: () => false,
       getApprovalMode: () => ApprovalMode.DEFAULT,
-      getProjectTempDir: () => '/tmp',
       getContentGeneratorConfig: () => ({
         model: 'test-model',
         authType: 'oauth-personal',
       }),
+      storage: {
+      getProjectTempDir: () => '/tmp',
+    },
       getToolRegistry: () => mockToolRegistry,
     } as unknown as Config;
 
@@ -194,11 +196,13 @@ describe('CoreToolScheduler with payload', () => {
       getUsageStatisticsEnabled: () => true,
       getDebugMode: () => false,
       getApprovalMode: () => ApprovalMode.DEFAULT,
-      getProjectTempDir: () => '/tmp',
       getContentGeneratorConfig: () => ({
         model: 'test-model',
         authType: 'oauth-personal',
       }),
+      storage: {
+        getProjectTempDir: () => '/tmp',
+      },
       getToolRegistry: () => mockToolRegistry,
     } as unknown as Config;
 
@@ -498,11 +502,13 @@ describe('CoreToolScheduler edit cancellation', () => {
       getUsageStatisticsEnabled: () => true,
       getDebugMode: () => false,
       getApprovalMode: () => ApprovalMode.DEFAULT,
-      getProjectTempDir: () => '/tmp',
       getContentGeneratorConfig: () => ({
         model: 'test-model',
         authType: 'oauth-personal',
       }),
+      storage: {
+        getProjectTempDir: () => '/tmp',
+      },
       getToolRegistry: () => mockToolRegistry,
     } as unknown as Config;
 
@@ -591,11 +597,13 @@ describe('CoreToolScheduler YOLO mode', () => {
       getUsageStatisticsEnabled: () => true,
       getDebugMode: () => false,
       getApprovalMode: () => ApprovalMode.YOLO,
-      getProjectTempDir: () => '/tmp',
       getContentGeneratorConfig: () => ({
         model: 'test-model',
         authType: 'oauth-personal',
       }),
+      storage: {
+        getProjectTempDir: () => '/tmp',
+      },
       getToolRegistry: () => mockToolRegistry,
     } as unknown as Config;
 
@@ -685,11 +693,13 @@ describe('CoreToolScheduler request queueing', () => {
       getUsageStatisticsEnabled: () => true,
       getDebugMode: () => false,
       getApprovalMode: () => ApprovalMode.YOLO, // Use YOLO to avoid confirmation prompts
-      getProjectTempDir: () => '/tmp',
       getContentGeneratorConfig: () => ({
         model: 'test-model',
         authType: 'oauth-personal',
       }),
+      storage: {
+        getProjectTempDir: () => '/tmp',
+      },
       getToolRegistry: () => mockToolRegistry,
     } as unknown as Config;
 
@@ -799,11 +809,13 @@ describe('CoreToolScheduler request queueing', () => {
       getUsageStatisticsEnabled: () => true,
       getDebugMode: () => false,
       getApprovalMode: () => ApprovalMode.YOLO,
-      getProjectTempDir: () => '/tmp',
       getContentGeneratorConfig: () => ({
         model: 'test-model',
         authType: 'oauth-personal',
       }),
+      storage: {
+        getProjectTempDir: () => '/tmp',
+      },
       getToolRegistry: () => mockToolRegistry,
     } as unknown as Config;
 
@@ -862,6 +874,9 @@ describe('CoreToolScheduler request queueing', () => {
       getApprovalMode: () => approvalMode,
       setApprovalMode: (mode: ApprovalMode) => {
         approvalMode = mode;
+      },
+      storage: {
+        getProjectTempDir: () => '/tmp',
       },
     } as unknown as Config;
 
