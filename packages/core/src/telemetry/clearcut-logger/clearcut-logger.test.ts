@@ -32,6 +32,7 @@ import { http, HttpResponse } from 'msw';
 import { server } from '../../mocks/msw.js';
 import { UserPromptEvent, makeChatCompressionEvent } from '../types.js';
 import { GIT_COMMIT_INFO, CLI_VERSION } from '../../generated/git-commit.js';
+import { DetectedIde } from '../../ide/detect-ide.js';
 import { UserAccountManager } from '../../utils/userAccountManager.js';
 import { InstallationManager } from '../../utils/installationManager.js';
 
@@ -281,50 +282,41 @@ describe('ClearcutLogger', () => {
 
     it.each([
       {
-        env: {
-          CURSOR_TRACE_ID: 'abc123',
-          GITHUB_SHA: undefined,
-        },
+        detectedIde: DetectedIde.Cursor,
         expectedValue: 'cursor',
       },
       {
-        env: {
-          TERM_PROGRAM: 'vscode',
-          GITHUB_SHA: undefined,
-        },
+        detectedIde: DetectedIde.VSCode,
         expectedValue: 'vscode',
       },
       {
-        env: {
-          MONOSPACE_ENV: 'true',
-          GITHUB_SHA: undefined,
-        },
+        detectedIde: DetectedIde.FirebaseStudio,
         expectedValue: 'firebasestudio',
       },
-      {
-        env: {
-          __COG_BASHRC_SOURCED: 'true',
-          GITHUB_SHA: undefined,
-        },
+      { 
+        detectedIde: DetectedIde.Devin,
         expectedValue: 'devin',
       },
       {
-        env: {
-          CLOUD_SHELL: 'true',
-          GITHUB_SHA: undefined,
-        },
+        detectedIde: DetectedIde.CloudShell,
         expectedValue: 'cloudshell',
       },
     ])(
       'logs the current surface as $expectedValue, preempting vscode detection',
-      ({ env, expectedValue }) => {
-        const { logger } = setup({});
-        for (const [key, value] of Object.entries(env)) {
-          vi.stubEnv(key, value);
+      ({ detectedIde, expectedValue }) => {
+        const { logger, loggerConfig } = setup({});
+        if (expectedValue === 'cursor') {
+          vi.spyOn(
+            loggerConfig.getIdeClient(),
+            'getCurrentIde',
+          ).mockReturnValue(detectedIde);
         }
         vi.stubEnv('TERM_PROGRAM', 'vscode');
         const event = logger?.createLogEvent(EventNames.API_ERROR, []);
-        expect(event?.event_metadata[0][3]).toEqual({
+        const surface = event?.event_metadata[0].find(
+          (e) => e.gemini_cli_key === EventMetadataKey.GEMINI_CLI_SURFACE,
+        );
+        expect(surface).toEqual({
           gemini_cli_key: EventMetadataKey.GEMINI_CLI_SURFACE,
           value: expectedValue,
         });

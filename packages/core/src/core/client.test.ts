@@ -210,6 +210,9 @@ describe('Gemini Client (client.ts)', () => {
       setFallbackMode: vi.fn(),
       getChatCompression: vi.fn().mockReturnValue(undefined),
       getSkipNextSpeakerCheck: vi.fn().mockReturnValue(false),
+      getIdeClient: vi.fn().mockReturnValue({
+        getCurrentIde: vi.fn(),
+      }),
     };
     const MockedConfig = vi.mocked(Config, true);
     MockedConfig.mockImplementation(
