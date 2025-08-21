@@ -305,12 +305,9 @@ describe('ClearcutLogger', () => {
       'logs the current surface as $expectedValue, preempting vscode detection',
       ({ detectedIde, expectedValue }) => {
         const { logger, loggerConfig } = setup({});
-        if (expectedValue === 'cursor') {
-          vi.spyOn(
-            loggerConfig.getIdeClient(),
-            'getCurrentIde',
-          ).mockReturnValue(detectedIde);
-        }
+        vi.spyOn(loggerConfig.getIdeClient(), 'getCurrentIde').mockReturnValue(
+          detectedIde,
+        );
         vi.stubEnv('TERM_PROGRAM', 'vscode');
         const event = logger?.createLogEvent(EventNames.API_ERROR, []);
         const surface = event?.event_metadata[0].find(
