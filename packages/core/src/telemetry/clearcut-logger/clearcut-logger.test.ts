@@ -293,7 +293,7 @@ describe('ClearcutLogger', () => {
         detectedIde: DetectedIde.FirebaseStudio,
         expectedValue: 'firebasestudio',
       },
-      { 
+      {
         detectedIde: DetectedIde.Devin,
         expectedValue: 'devin',
       },

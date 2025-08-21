@@ -37,7 +37,7 @@ export function makeFakeConfig(
   newConfig.getIdeClient = vi.fn().mockReturnValue({
     getCurrentIde: vi.fn(),
     addStatusChangeListener: vi.fn(),
-    removeStatusChangeListener: vi.fn()
+    removeStatusChangeListener: vi.fn(),
   });
   return newConfig;
 }
