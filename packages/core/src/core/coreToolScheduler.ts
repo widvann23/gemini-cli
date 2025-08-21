@@ -252,7 +252,9 @@ export async function truncateAndSaveToFile(
     truncatedContent = content.slice(-maxChars);
   }
 
-  const outputFile = path.join(projectTempDir, `${callId}.txt`);
+  // Sanitize callId to prevent path traversal.
+  const safeFileName = `${path.basename(callId)}.txt`;
+  const outputFile = path.join(projectTempDir, safeFileName);
   try {
     await fs.writeFile(outputFile, content);
 

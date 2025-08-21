@@ -1121,4 +1121,17 @@ describe('truncateAndSaveToFile', () => {
       'read_file tool with limit=M to read only M lines',
     );
   });
+
+  it('should sanitize callId to prevent path traversal', async () => {
+    const content = 'a'.repeat(2_000_000);
+    const callId = '../../../../../etc/passwd';
+    const projectTempDir = '/tmp/safe_dir';
+
+    mockWriteFile.mockResolvedValue(undefined);
+
+    await truncateAndSaveToFile(content, callId, projectTempDir);
+
+    const expectedPath = path.join(projectTempDir, 'passwd.txt');
+    expect(mockWriteFile).toHaveBeenCalledWith(expectedPath, content);
+  });
 });
