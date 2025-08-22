@@ -85,6 +85,7 @@ import { McpPromptLoader } from '../../services/McpPromptLoader.js';
 import {
   SlashCommandStatus,
   makeFakeConfig,
+  type IdeClient,
 } from '@google/gemini-cli-core/index.js';
 
 function createTestCommand(
@@ -108,6 +109,10 @@ describe('useSlashCommandProcessor', () => {
   const mockSetQuittingMessages = vi.fn();
 
   const mockConfig = makeFakeConfig({});
+  vi.spyOn(mockConfig, 'getIdeClient').mockReturnValue({
+    addStatusChangeListener: vi.fn(),
+    removeStatusChangeListener: vi.fn(),
+  } as unknown as IdeClient);
 
   const mockSettings = {} as LoadedSettings;
 

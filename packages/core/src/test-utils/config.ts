@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { vi } from 'vitest';
 import { Config, ConfigParameters } from '../config/config.js';
 
 /**
@@ -30,14 +29,8 @@ export function makeFakeConfig(
     ...DEFAULT_CONFIG_PARAMETERS,
   },
 ): Config {
-  const newConfig = new Config({
+  return new Config({
     ...DEFAULT_CONFIG_PARAMETERS,
     ...config,
   });
-  newConfig.getIdeClient = vi.fn().mockReturnValue({
-    getCurrentIde: vi.fn(),
-    addStatusChangeListener: vi.fn(),
-    removeStatusChangeListener: vi.fn(),
-  });
-  return newConfig;
 }

@@ -4,96 +4,133 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
-import { DetectedIde, detectIde } from './detect-ide.js';
-
-vi.mock('node:os', () => ({
-  default: {
-    platform: vi.fn(),
-  },
-}));
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { detectIde, DetectedIde, getIdeInfo } from './detect-ide.js';
 
 describe('detectIde', () => {
-  beforeEach(() => {
-    vi.unstubAllEnvs();
-    vi.stubEnv('TERM_PROGRAM', 'vscode');
-  });
+  const ideProcessInfo = { pid: 123, command: 'some/path/to/code' };
+  const ideProcessInfoNoCode = { pid: 123, command: 'some/path/to/fork' };
 
   afterEach(() => {
     vi.unstubAllEnvs();
-    vi.restoreAllMocks();
   });
 
-  it('returns Devin when __COG_BASHRC_SOURCED is set', () => {
+  it('should return undefined if TERM_PROGRAM is not vscode', () => {
+    vi.stubEnv('TERM_PROGRAM', '');
+    expect(detectIde(ideProcessInfo)).toBeUndefined();
+  });
+
+  it('should detect Devin', () => {
+    vi.stubEnv('TERM_PROGRAM', 'vscode');
     vi.stubEnv('__COG_BASHRC_SOURCED', '1');
-    expect(detectIde({ pid: 123, command: 'any' })).toBe(DetectedIde.Devin);
+    expect(detectIde(ideProcessInfo)).toBe(DetectedIde.Devin);
   });
 
-  it('returns Replit when REPLIT_USER is set', () => {
-    vi.stubEnv('REPLIT_USER', 'test');
-    expect(detectIde({ pid: 123, command: 'any' })).toBe(DetectedIde.Replit);
+  it('should detect Replit', () => {
+    vi.stubEnv('TERM_PROGRAM', 'vscode');
+    vi.stubEnv('REPLIT_USER', 'testuser');
+    expect(detectIde(ideProcessInfo)).toBe(DetectedIde.Replit);
   });
 
-  it('returns Cursor when CURSOR_TRACE_ID is set', () => {
-    vi.stubEnv('CURSOR_TRACE_ID', 'test');
-    expect(detectIde({ pid: 123, command: 'any' })).toBe(DetectedIde.Cursor);
+  it('should detect Cursor', () => {
+    vi.stubEnv('TERM_PROGRAM', 'vscode');
+    vi.stubEnv('CURSOR_TRACE_ID', 'some-id');
+    expect(detectIde(ideProcessInfo)).toBe(DetectedIde.Cursor);
   });
 
-  it('returns Codespaces when CODESPACES is true', () => {
+  it('should detect Codespaces', () => {
+    vi.stubEnv('TERM_PROGRAM', 'vscode');
     vi.stubEnv('CODESPACES', 'true');
-    expect(detectIde({ pid: 123, command: 'any' })).toBe(
-      DetectedIde.Codespaces,
-    );
+    expect(detectIde(ideProcessInfo)).toBe(DetectedIde.Codespaces);
   });
 
-  it('returns CloudShell when EDITOR_IN_CLOUD_SHELL is true', () => {
+  it('should detect Cloud Shell via EDITOR_IN_CLOUD_SHELL', () => {
+    vi.stubEnv('TERM_PROGRAM', 'vscode');
     vi.stubEnv('EDITOR_IN_CLOUD_SHELL', 'true');
-    expect(detectIde({ pid: 123, command: 'any' })).toBe(
-      DetectedIde.CloudShell,
-    );
+    expect(detectIde(ideProcessInfo)).toBe(DetectedIde.CloudShell);
   });
 
-  it('returns CloudShell when CLOUD_SHELL is true', () => {
+  it('should detect Cloud Shell via CLOUD_SHELL', () => {
+    vi.stubEnv('TERM_PROGRAM', 'vscode');
     vi.stubEnv('CLOUD_SHELL', 'true');
-    expect(detectIde({ pid: 123, command: 'any' })).toBe(
-      DetectedIde.CloudShell,
-    );
+    expect(detectIde(ideProcessInfo)).toBe(DetectedIde.CloudShell);
   });
 
-  it('returns Trae when TERM_PRODUCT is Trae', () => {
+  it('should detect Trae', () => {
+    vi.stubEnv('TERM_PROGRAM', 'vscode');
     vi.stubEnv('TERM_PRODUCT', 'Trae');
-    expect(detectIde({ pid: 123, command: 'any' })).toBe(DetectedIde.Trae);
+    expect(detectIde(ideProcessInfo)).toBe(DetectedIde.Trae);
   });
 
-  it('returns FirebaseStudio when FIREBASE_DEPLOY_AGENT is true', () => {
+  it('should detect Firebase Studio via FIREBASE_DEPLOY_AGENT', () => {
+    vi.stubEnv('TERM_PROGRAM', 'vscode');
     vi.stubEnv('FIREBASE_DEPLOY_AGENT', 'true');
-    expect(detectIde({ pid: 123, command: 'any' })).toBe(
-      DetectedIde.FirebaseStudio,
-    );
+    expect(detectIde(ideProcessInfo)).toBe(DetectedIde.FirebaseStudio);
   });
 
-  it('returns FirebaseStudio when MONOSPACE_ENV is set', () => {
+  it('should detect Firebase Studio via MONOSPACE_ENV', () => {
+    vi.stubEnv('TERM_PROGRAM', 'vscode');
     vi.stubEnv('MONOSPACE_ENV', 'true');
-    expect(detectIde({ pid: 123, command: 'any' })).toBe(
-      DetectedIde.FirebaseStudio,
-    );
+    expect(detectIde(ideProcessInfo)).toBe(DetectedIde.FirebaseStudio);
   });
 
-  it('returns VSCode when command contains "code"', () => {
-    expect(detectIde({ pid: 123, command: '/usr/bin/code' })).toBe(
-      DetectedIde.VSCode,
-    );
+  it('should detect VSCode when no other IDE is detected and command includes "code"', () => {
+    vi.stubEnv('TERM_PROGRAM', 'vscode');
+    expect(detectIde(ideProcessInfo)).toBe(DetectedIde.VSCode);
   });
 
-  it('returns VSCodeFork when command does not contain "code"', () => {
-    expect(detectIde({ pid: 123, command: '/usr/bin/vscodium' })).toBe(
-      DetectedIde.VSCodeFork,
-    );
+  it('should detect VSCodeFork when no other IDE is detected and command does not include "code"', () => {
+    vi.stubEnv('TERM_PROGRAM', 'vscode');
+    expect(detectIde(ideProcessInfoNoCode)).toBe(DetectedIde.VSCodeFork);
   });
 
-  it('returns undefined for non-vscode', () => {
-    vi.unstubAllEnvs();
-    vi.stubEnv('TERM_PROGRAM', 'definitely-not-vscode');
-    expect(detectIde({ pid: 123, command: 'code' })).toBeUndefined();
+  it('should prioritize other IDEs over VSCode detection', () => {
+    vi.stubEnv('TERM_PROGRAM', 'vscode');
+    vi.stubEnv('REPLIT_USER', 'testuser');
+    expect(detectIde(ideProcessInfo)).toBe(DetectedIde.Replit);
+  });
+});
+
+describe('getIdeInfo', () => {
+  it('should return correct info for Devin', () => {
+    expect(getIdeInfo(DetectedIde.Devin)).toEqual({ displayName: 'Devin' });
+  });
+
+  it('should return correct info for Replit', () => {
+    expect(getIdeInfo(DetectedIde.Replit)).toEqual({ displayName: 'Replit' });
+  });
+
+  it('should return correct info for Cursor', () => {
+    expect(getIdeInfo(DetectedIde.Cursor)).toEqual({ displayName: 'Cursor' });
+  });
+
+  it('should return correct info for CloudShell', () => {
+    expect(getIdeInfo(DetectedIde.CloudShell)).toEqual({
+      displayName: 'Cloud Shell',
+    });
+  });
+
+  it('should return correct info for Codespaces', () => {
+    expect(getIdeInfo(DetectedIde.Codespaces)).toEqual({
+      displayName: 'GitHub Codespaces',
+    });
+  });
+
+  it('should return correct info for FirebaseStudio', () => {
+    expect(getIdeInfo(DetectedIde.FirebaseStudio)).toEqual({
+      displayName: 'Firebase Studio',
+    });
+  });
+
+  it('should return correct info for Trae', () => {
+    expect(getIdeInfo(DetectedIde.Trae)).toEqual({ displayName: 'Trae' });
+  });
+
+  it('should return correct info for VSCode', () => {
+    expect(getIdeInfo(DetectedIde.VSCode)).toEqual({ displayName: 'VS Code' });
+  });
+
+  it('should return correct info for VSCodeFork', () => {
+    expect(getIdeInfo(DetectedIde.VSCodeFork)).toEqual({ displayName: 'IDE' });
   });
 });

@@ -40,9 +40,6 @@ describe('executeToolCall', () => {
         model: 'test-model',
         authType: 'oauth-personal',
       }),
-      getIdeClient: vi.fn().mockReturnValue({
-        getCurrentIde: vi.fn(),
-      }),
     } as unknown as Config;
 
     abortController = new AbortController();

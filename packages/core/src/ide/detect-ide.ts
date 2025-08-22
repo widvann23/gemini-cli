@@ -66,14 +66,7 @@ export function getIdeInfo(ide: DetectedIde): IdeInfo {
   }
 }
 
-export function detectIde(ideProcessInfo: {
-  pid: number;
-  command: string;
-}): DetectedIde | undefined {
-  // Only VSCode-based integrations are currently supported.
-  if (process.env['TERM_PROGRAM'] !== 'vscode') {
-    return undefined;
-  }
+export function detectIdeFromEnv(): DetectedIde {
   if (process.env['__COG_BASHRC_SOURCED']) {
     return DetectedIde.Devin;
   }
@@ -95,8 +88,34 @@ export function detectIde(ideProcessInfo: {
   if (process.env['FIREBASE_DEPLOY_AGENT'] || process.env['MONOSPACE_ENV']) {
     return DetectedIde.FirebaseStudio;
   }
+  return DetectedIde.VSCode;
+}
+
+function verifyVSCode(
+  ide: DetectedIde,
+  ideProcessInfo: {
+    pid: number;
+    command: string;
+  },
+): DetectedIde {
+  if (ide !== DetectedIde.VSCode) {
+    return ide;
+  }
   if (ideProcessInfo.command.toLowerCase().includes('code')) {
     return DetectedIde.VSCode;
   }
   return DetectedIde.VSCodeFork;
+}
+
+export function detectIde(ideProcessInfo: {
+  pid: number;
+  command: string;
+}): DetectedIde | undefined {
+  // Only VSCode-based integrations are currently supported.
+  if (process.env['TERM_PROGRAM'] !== 'vscode') {
+    return undefined;
+  }
+
+  const ide = detectIdeFromEnv();
+  return verifyVSCode(ide, ideProcessInfo);
 }
