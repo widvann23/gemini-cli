@@ -55,6 +55,7 @@ import {
 } from './useReactToolScheduler.js';
 import { useSessionStats } from '../contexts/SessionContext.js';
 import { useKeypress } from './useKeypress.js';
+import { SHELL_COMMAND_NAME } from '../constants.js';
 
 export function mergePartListUnions(list: PartListUnion[]): PartListUnion {
   const resultParts: PartListUnion = [];
@@ -130,7 +131,7 @@ export const useGeminiStream = (
 
           if (
             completedToolCallsFromScheduler.some(
-              (tool) => tool.request.name === 'run_shell_command',
+              (tool) => tool.request.name === SHELL_COMMAND_NAME,
             )
           ) {
             setIsChildProcessRunning(false);
@@ -150,7 +151,7 @@ export const useGeminiStream = (
 
   const scheduleToolCallsWithState = useCallback(
     (requests: ToolCallRequestInfo[], signal: AbortSignal) => {
-      if (requests.some((req) => req.name === 'run_shell_command')) {
+      if (requests.some((req) => req.name === SHELL_COMMAND_NAME)) {
         setIsChildProcessRunning(true);
       }
       scheduleToolCalls(requests, signal);
