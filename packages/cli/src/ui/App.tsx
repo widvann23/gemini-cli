@@ -44,17 +44,15 @@ import { HistoryItemDisplay } from './components/HistoryItemDisplay.js';
 import { ContextSummaryDisplay } from './components/ContextSummaryDisplay.js';
 import { useHistory } from './hooks/useHistoryManager.js';
 import process from 'node:process';
-import type {
-  EditorType,
-  getErrorMessage,
-  type Config,
-  getAllGeminiMdFilenames,
+import type { EditorType, Config, IdeContext } from '@google/gemini-cli-core';
+import {
   ApprovalMode,
+  getAllGeminiMdFilenames,
   isEditorAvailable,
-  FlashFallbackEvent,
-  logFlashFallback,
+  getErrorMessage,
   AuthType,
-  type IdeContext,
+  logFlashFallback,
+  FlashFallbackEvent,
   ideContext,
 } from '@google/gemini-cli-core';
 import type { IdeIntegrationNudgeResult } from './IdeIntegrationNudge.js';

@@ -7,13 +7,15 @@
 import type {
   Config,
   IdeClient,
-  DetectedIde,
-  GEMINI_CLI_COMPANION_EXTENSION_NAME,
-  IDEConnectionStatus,
   getIdeInfo,
   getIdeInstaller,
-  type File,
+  File,
+} from '@google/gemini-cli-core';
+import {
+  IDEConnectionStatus,
   ideContext,
+  DetectedIde,
+  GEMINI_CLI_COMPANION_EXTENSION_NAME,
 } from '@google/gemini-cli-core';
 import path from 'node:path';
 import type {

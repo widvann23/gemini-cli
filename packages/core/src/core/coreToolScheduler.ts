@@ -21,8 +21,8 @@ import {
   ToolConfirmationOutcome,
   ApprovalMode,
   logToolCall,
-  ToolCallEvent,
   ToolErrorType,
+  ToolCallEvent,
 } from '../index.js';
 import type { Part, PartListUnion } from '@google/genai';
 import { getResponseTextFromParts } from '../utils/generateContentResponseUtilities.js';
