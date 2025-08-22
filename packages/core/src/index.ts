@@ -55,7 +55,7 @@ export * from './services/fileSystemService.js';
 export * from './ide/ide-client.js';
 export * from './ide/ideContext.js';
 export * from './ide/ide-installer.js';
-export { getIdeInfo, type DetectedIde } from './ide/detect-ide.js';
+export { getIdeInfo, DetectedIde } from './ide/detect-ide.js';
 export { type IdeInfo } from './ide/detect-ide.js';
 export * from './ide/constants.js';
 
