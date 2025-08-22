@@ -382,6 +382,9 @@ export class IdeClient {
   private async getConnectionConfigFromFile(): Promise<
     (ConnectionConfig & { workspacePath?: string }) | undefined
   > {
+    if (!this.ideProcessInfo) {
+      return {};
+    }
     try {
       const portFile = path.join(
         os.tmpdir(),

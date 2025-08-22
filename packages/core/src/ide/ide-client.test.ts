@@ -15,7 +15,7 @@ import {
 } from 'vitest';
 import { IdeClient, IDEConnectionStatus } from './ide-client.js';
 import * as fs from 'node:fs';
-import { getIdeProcessId } from './process-utils.js';
+import { getIdeProcessInfo } from './process-utils.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
@@ -51,7 +51,7 @@ describe('IdeClient', () => {
   let mockHttpTransport: Mocked<StreamableHTTPClientTransport>;
   let mockStdioTransport: Mocked<StdioClientTransport>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // Reset singleton instance for test isolation
     (IdeClient as unknown as { instance: IdeClient | undefined }).instance =
       undefined;
@@ -68,7 +68,10 @@ describe('IdeClient', () => {
     vi.mocked(getIdeInfo).mockReturnValue({
       displayName: 'VS Code',
     } as IdeInfo);
-    vi.mocked(getIdeProcessId).mockResolvedValue(12345);
+    vi.mocked(getIdeProcessInfo).mockResolvedValue({
+      pid: 12345,
+      command: 'test-ide',
+    });
     vi.mocked(os.tmpdir).mockReturnValue('/tmp');
 
     // Mock MCP client and transports
@@ -88,6 +91,8 @@ describe('IdeClient', () => {
     vi.mocked(Client).mockReturnValue(mockClient);
     vi.mocked(StreamableHTTPClientTransport).mockReturnValue(mockHttpTransport);
     vi.mocked(StdioClientTransport).mockReturnValue(mockStdioTransport);
+
+    await IdeClient.initialize();
   });
 
   afterEach(() => {

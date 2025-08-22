@@ -43,7 +43,6 @@ describe('executeToolCall', () => {
       getIdeClient: vi.fn().mockReturnValue({
         getCurrentIde: vi.fn(),
       }),
-      getToolRegistry: () => mockToolRegistry,
     } as unknown as Config;
 
     abortController = new AbortController();
