@@ -132,11 +132,11 @@ describe('CoreToolScheduler', () => {
       getIdeClient: vi.fn().mockReturnValue({
         getCurrentIde: vi.fn(),
       }),
+      getToolRegistry: () => mockToolRegistry,
     } as unknown as Config;
 
     const scheduler = new CoreToolScheduler({
       config: mockConfig,
-      toolRegistry: mockToolRegistry,
       onAllToolCallsComplete,
       onToolCallsUpdate,
       getPreferredEditor: () => 'vscode',
@@ -192,11 +192,11 @@ describe('CoreToolScheduler with payload', () => {
         model: 'test-model',
         authType: 'oauth-personal',
       }),
+      getToolRegistry: () => mockToolRegistry,
     } as unknown as Config;
 
     const scheduler = new CoreToolScheduler({
       config: mockConfig,
-      toolRegistry: mockToolRegistry,
       onAllToolCallsComplete,
       onToolCallsUpdate,
       getPreferredEditor: () => 'vscode',
@@ -465,15 +465,14 @@ class MockEditTool extends BaseDeclarativeTool<
 describe('CoreToolScheduler edit cancellation', () => {
   it('should preserve diff when an edit is cancelled', async () => {
     const mockEditTool = new MockEditTool();
-    const declarativeTool = mockEditTool;
     const mockToolRegistry = {
-      getTool: () => declarativeTool,
+      getTool: () => mockEditTool,
       getFunctionDeclarations: () => [],
       tools: new Map(),
       discovery: {},
       registerTool: () => {},
-      getToolByName: () => declarativeTool,
-      getToolByDisplayName: () => declarativeTool,
+      getToolByName: () => mockEditTool,
+      getToolByDisplayName: () => mockEditTool,
       getTools: () => [],
       discoverTools: async () => {},
       getAllTools: () => [],
@@ -492,11 +491,11 @@ describe('CoreToolScheduler edit cancellation', () => {
         model: 'test-model',
         authType: 'oauth-personal',
       }),
+      getToolRegistry: () => mockToolRegistry,
     } as unknown as Config;
 
     const scheduler = new CoreToolScheduler({
       config: mockConfig,
-      toolRegistry: mockToolRegistry,
       onAllToolCallsComplete,
       onToolCallsUpdate,
       getPreferredEditor: () => 'vscode',
@@ -584,11 +583,11 @@ describe('CoreToolScheduler YOLO mode', () => {
         model: 'test-model',
         authType: 'oauth-personal',
       }),
+      getToolRegistry: () => mockToolRegistry,
     } as unknown as Config;
 
     const scheduler = new CoreToolScheduler({
       config: mockConfig,
-      toolRegistry: mockToolRegistry,
       onAllToolCallsComplete,
       onToolCallsUpdate,
       getPreferredEditor: () => 'vscode',
@@ -673,11 +672,11 @@ describe('CoreToolScheduler request queueing', () => {
         model: 'test-model',
         authType: 'oauth-personal',
       }),
+      getToolRegistry: () => mockToolRegistry,
     } as unknown as Config;
 
     const scheduler = new CoreToolScheduler({
       config: mockConfig,
-      toolRegistry: mockToolRegistry,
       onAllToolCallsComplete,
       onToolCallsUpdate,
       getPreferredEditor: () => 'vscode',
@@ -786,11 +785,11 @@ describe('CoreToolScheduler request queueing', () => {
         model: 'test-model',
         authType: 'oauth-personal',
       }),
+      getToolRegistry: () => mockToolRegistry,
     } as unknown as Config;
 
     const scheduler = new CoreToolScheduler({
       config: mockConfig,
-      toolRegistry: mockToolRegistry,
       onAllToolCallsComplete,
       onToolCallsUpdate,
       getPreferredEditor: () => 'vscode',
@@ -867,7 +866,9 @@ describe('CoreToolScheduler request queueing', () => {
       getTools: () => [],
       discoverTools: async () => {},
       discovery: {},
-    };
+    } as unknown as ToolRegistry;
+
+    mockConfig.getToolRegistry = () => toolRegistry;
 
     const onAllToolCallsComplete = vi.fn();
     const onToolCallsUpdate = vi.fn();
@@ -877,7 +878,6 @@ describe('CoreToolScheduler request queueing', () => {
 
     const scheduler = new CoreToolScheduler({
       config: mockConfig,
-      toolRegistry: toolRegistry as unknown as ToolRegistry,
       onAllToolCallsComplete,
       onToolCallsUpdate: (toolCalls) => {
         onToolCallsUpdate(toolCalls);
