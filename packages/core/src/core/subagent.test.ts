@@ -524,13 +524,11 @@ describe('subagent.ts', () => {
 
         expect(scope.output.terminate_reason).toBe(SubagentTerminateMode.GOAL);
         expect(scope.output.emitted_vars).toEqual({ result: 'Success!' });
-        expect(mockSendMessageStream).toHaveBeenCalledTimes(2);
+        expect(mockSendMessageStream).toHaveBeenCalledTimes(1);
 
         // Check the tool response sent back in the second call
-        const secondCallArgs = mockSendMessageStream.mock.calls[1][0];
-        expect(secondCallArgs.message).toEqual([
-          { text: 'Emitted variable result successfully' },
-        ]);
+        const secondCallArgs = mockSendMessageStream.mock.calls[0][0];
+        expect(secondCallArgs.message).toEqual([{ text: 'Get Started!' }]);
       });
 
       it('should execute external tools and provide the response to the model', async () => {
@@ -698,7 +696,7 @@ describe('subagent.ts', () => {
         expect(scope.output.emitted_vars).toEqual({
           required_var: 'Here it is',
         });
-        expect(mockSendMessageStream).toHaveBeenCalledTimes(3);
+        expect(mockSendMessageStream).toHaveBeenCalledTimes(2);
       });
     });
 

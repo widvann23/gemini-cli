@@ -454,7 +454,25 @@ export class SubAgentScope {
             abortController,
             promptId,
           );
-        } else {
+        }
+
+        // Check for goal completion after processing function calls,
+        // as `self.emitvalue` might have completed the requirements.
+        if (
+          this.outputConfig &&
+          Object.keys(this.outputConfig.outputs).length > 0
+        ) {
+          const remainingVars = Object.keys(this.outputConfig.outputs).filter(
+            (key) => !(key in this.output.emitted_vars),
+          );
+
+          if (remainingVars.length === 0) {
+            this.output.terminate_reason = SubagentTerminateMode.GOAL;
+            break;
+          }
+        }
+
+        if (functionCalls.length === 0) {
           // Model stopped calling tools. Check if goal is met.
           if (
             !this.outputConfig ||
@@ -516,8 +534,18 @@ export class SubAgentScope {
     for (const functionCall of functionCalls) {
       if (this.onMessage) {
         const args = JSON.stringify(functionCall.args ?? {});
+        // Truncate arguments
+        const MAX_ARGS_LENGTH = 250;
+        const truncatedArgs =
+          args.length > MAX_ARGS_LENGTH
+            ? `${args.substring(0, MAX_ARGS_LENGTH)}...`
+            : args;
         this.onMessage(
-          `Executing tool: ${functionCall.name} with args ${args}`,
+          `
+
+**Executing tool: ${functionCall.name} with args ${truncatedArgs}**
+
+`,
         );
       }
       const callId = functionCall.id ?? `${functionCall.name}-${Date.now()}`;

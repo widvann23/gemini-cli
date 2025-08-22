@@ -765,7 +765,10 @@ export class Config {
     registerCoreTool(WebSearchTool, this);
 
     // Manually register the planning tool as it has a different structure
-    if (this.getUsePlanningTool()) {
+    if (
+      this.getUsePlanningTool() &&
+      !this.getExcludeTools()?.includes('planning_tool')
+    ) {
       registry.registerTool(getPlanningTool(this));
     }
 

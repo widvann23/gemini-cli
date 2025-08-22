@@ -82,8 +82,10 @@ const promptConfig: PromptConfig = {
   systemPrompt: PLANNING_SYSTEM_PROMPT,
 };
 
+import { DEFAULT_GEMINI_MODEL } from '../config/models.js';
+
 const modelConfig: ModelConfig = {
-  model: 'gemini-2.5-pro',
+  model: DEFAULT_GEMINI_MODEL,
   temp: 0.1,
   top_p: 0.95,
 };
