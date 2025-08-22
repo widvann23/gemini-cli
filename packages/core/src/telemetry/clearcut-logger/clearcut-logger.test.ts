@@ -305,6 +305,7 @@ describe('ClearcutLogger', () => {
       'logs the current surface as $expectedValue, preempting vscode detection',
       ({ detectedIde, expectedValue }) => {
         const { logger, loggerConfig } = setup({});
+        vi.stubEnv("GITHUB_SHA", undefined);
         vi.spyOn(loggerConfig.getIdeClient(), 'getCurrentIde').mockReturnValue(
           detectedIde,
         );
