@@ -17,7 +17,7 @@ import type {
   ToolCallRequestInfo,
   ToolCallResponseInfo,
 } from '../core/turn.js';
-import type { Tool } from '../tools/tools.js';
+import { MockTool } from '../test-utils/tools.js';
 
 describe('Circular Reference Handling', () => {
   it('should handle circular references in tool function arguments', () => {
@@ -56,13 +56,16 @@ describe('Circular Reference Handling', () => {
       responseParts: [{ text: 'test result' }],
       resultDisplay: undefined,
       error: undefined, // undefined means success
+      errorType: undefined,
     };
 
+    const tool = new MockTool('mock-tool');
     const mockCompletedToolCall: CompletedToolCall = {
       status: 'success',
       request: mockRequest,
       response: mockResponse,
-      tool: {} as Tool,
+      tool,
+      invocation: tool.build({}),
       durationMs: 100,
     };
 
@@ -103,13 +106,16 @@ describe('Circular Reference Handling', () => {
       responseParts: [{ text: 'test result' }],
       resultDisplay: undefined,
       error: undefined, // undefined means success
+      errorType: undefined,
     };
 
+    const tool = new MockTool('mock-tool');
     const mockCompletedToolCall: CompletedToolCall = {
       status: 'success',
       request: mockRequest,
       response: mockResponse,
-      tool: {} as Tool,
+      tool,
+      invocation: tool.build({}),
       durationMs: 100,
     };
 

@@ -32,7 +32,7 @@ describe('toolsCommand', () => {
     const mockContext = createMockCommandContext({
       services: {
         config: {
-          getToolRegistry: () => Promise.resolve(undefined),
+          getToolRegistry: () => undefined,
         },
       },
     });
@@ -53,8 +53,7 @@ describe('toolsCommand', () => {
     const mockContext = createMockCommandContext({
       services: {
         config: {
-          getToolRegistry: () =>
-            Promise.resolve({ getAllTools: () => [] as Tool[] }),
+          getToolRegistry: () => ({ getAllTools: () => [] as Tool[] }),
         },
       },
     });
@@ -74,8 +73,7 @@ describe('toolsCommand', () => {
     const mockContext = createMockCommandContext({
       services: {
         config: {
-          getToolRegistry: () =>
-            Promise.resolve({ getAllTools: () => mockTools }),
+          getToolRegistry: () => ({ getAllTools: () => mockTools }),
         },
       },
     });
@@ -93,8 +91,7 @@ describe('toolsCommand', () => {
     const mockContext = createMockCommandContext({
       services: {
         config: {
-          getToolRegistry: () =>
-            Promise.resolve({ getAllTools: () => mockTools }),
+          getToolRegistry: () => ({ getAllTools: () => mockTools }),
         },
       },
     });
