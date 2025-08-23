@@ -579,6 +579,20 @@ export class GeminiChat {
     modelOutput: Content[],
     automaticFunctionCallingHistory?: Content[],
   ) {
+    const lastHistoryEntry =
+      this.history.length > 0
+        ? this.history[this.history.length - 1]
+        : undefined;
+
+    // FIX: Before processing the new turn, check if the previous turn was an
+    // incomplete tool call. If the last history item is a function response,
+    // we must insert an empty model turn to maintain the alternating pattern.
+    if (lastHistoryEntry && isFunctionResponse(lastHistoryEntry)) {
+      this.history.push({ role: 'model', parts: [] });
+    }
+
+    // --- The rest of the function proceeds as before ---
+
     const newHistoryEntries: Content[] = [];
 
     // Part 1: Handle the user's part of the turn.
@@ -607,14 +621,9 @@ export class GeminiChat {
     let outputContents: Content[] = [];
     if (nonThoughtModelOutput.length > 0) {
       outputContents = nonThoughtModelOutput;
-    } else if (
-      !automaticFunctionCallingHistory &&
-      (isFunctionResponse(userInput) || modelOutput.length === 0)
-    ) {
-      // FIX: This condition now correctly adds an empty model turn if:
-      // 1. The user sent a tool response (isFunctionResponse is true), which MUST be followed by a model turn.
-      // 2. The model genuinely returned nothing (modelOutput.length is 0).
-      // It correctly does NOT add a turn if the model only returned a "thought".
+    } else if (!automaticFunctionCallingHistory && modelOutput.length === 0) {
+      // Only add an empty turn if the model *truly* sent nothing.
+      // The tool-use case is now handled by the check at the top of the function.
       outputContents.push({ role: 'model', parts: [] } as Content);
     }
 
