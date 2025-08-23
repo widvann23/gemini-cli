@@ -21,6 +21,7 @@ import {
   ToolErrorType,
   AnyDeclarativeTool,
   AnyToolInvocation,
+  ReadFileTool,
 } from '../index.js';
 import { Part, PartListUnion } from '@google/genai';
 import { getResponseTextFromParts } from '../utils/generateContentResponseUtilities.js';
@@ -227,7 +228,7 @@ const createErrorResponse = (
   errorType,
 });
 
-const TRUNCATION_THRESHOLD = 1_000_000;
+const TRUNCATION_THRESHOLD = 400_000;
 const TRUNCATION_LINES = 1_000;
 
 export async function truncateAndSaveToFile(
@@ -248,8 +249,7 @@ export async function truncateAndSaveToFile(
     truncatedContent = lines.slice(-TRUNCATION_LINES).join('\n');
   } else {
     // Content has few lines (or one very long line); truncate by character count.
-    const maxChars = TRUNCATION_LINES * 80; // Approximate 80 chars per line
-    truncatedContent = content.slice(-maxChars);
+    truncatedContent = content.slice(-TRUNCATION_THRESHOLD);
   }
 
   // Sanitize callId to prevent path traversal.
@@ -261,13 +261,14 @@ export async function truncateAndSaveToFile(
     return {
       content: `Tool output was too large and has been truncated.
 The full output has been saved to: ${outputFile}
-To read the complete output, use the read_file tool with the absolute file path above. For large files, you can use the offset and limit parameters to read specific sections:
-- read_file tool with offset=0, limit=100 to see the first 100 lines
-- read_file tool with offset=N to skip N lines from the beginning
-- read_file tool with limit=M to read only M lines at a time
+To read the complete output, use the ${ReadFileTool.Name} tool with the absolute file path above. For large files, you can use the offset and limit parameters to read specific sections:
+- ${ReadFileTool.Name} tool with offset=0, limit=100 to see the first 100 lines
+- ${ReadFileTool.Name} tool with offset=N to skip N lines from the beginning
+- ${ReadFileTool.Name} tool with limit=M to read only M lines at a time
 This allows you to efficiently examine different parts of the output without loading the entire file.
-Last ${TRUNCATION_LINES} lines of output:
-...\n${truncatedContent}`,
+Truncated part of the output:
+...
+${truncatedContent}`,
       outputFile,
     };
   } catch (_error) {

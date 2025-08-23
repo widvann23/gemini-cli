@@ -1043,7 +1043,7 @@ describe('truncateAndSaveToFile', () => {
     expect(result.content).toContain(
       'Tool output was too large and has been truncated',
     );
-    expect(result.content).toContain('Last 1000 lines of output:');
+    expect(result.content).toContain('Truncated part of the output:');
     expect(result.content).toContain(expectedTruncated);
   });
 
