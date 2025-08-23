@@ -9,15 +9,17 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderWithProviders } from '../test-utils/render.js';
 import { AppWrapper as App } from './App.js';
 import type {
+  AccessibilitySettings,
   MCPServerConfig,
   ToolRegistry,
-  AccessibilitySettings,
   SandboxConfig,
   GeminiClient,
-  Config as ServerConfig,
+  AuthType,
+} from '@google/gemini-cli-core';
+import {
   ApprovalMode,
   ideContext,
-  type AuthType,
+  Config as ServerConfig,
 } from '@google/gemini-cli-core';
 import type { SettingsFile, Settings } from '../config/settings.js';
 import { LoadedSettings } from '../config/settings.js';
