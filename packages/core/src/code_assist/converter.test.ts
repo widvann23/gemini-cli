@@ -19,7 +19,7 @@ import {
   GenerateContentResponse,
   FinishReason,
   BlockedReason,
-  Part,
+  type Part,
 } from '@google/genai';
 
 describe('converter', () => {

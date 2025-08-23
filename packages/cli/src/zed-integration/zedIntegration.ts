@@ -28,9 +28,9 @@ import {
 import * as acp from './acp.js';
 import { AcpFileSystemService } from './fileSystemService.js';
 import { Readable, Writable } from 'node:stream';
-import type { Content, Part, FunctionCall, PartListUnion } from '@google/genai';
+import type { Content, Part, FunctionCall } from '@google/genai';
 import type { LoadedSettings } from '../config/settings.js';
-import { LoadedSettings, SettingScope } from '../config/settings.js';
+import { SettingScope } from '../config/settings.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { z } from 'zod';
