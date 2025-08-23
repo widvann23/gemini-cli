@@ -24,6 +24,11 @@ import type { Config } from '../config/config.js';
 import { DEFAULT_GEMINI_FLASH_MODEL } from '../config/models.js';
 import { hasCycleInSchema } from '../tools/tools.js';
 import type { StructuredError } from './turn.js';
+import {
+  recordContentRetry,
+  recordContentRetryFailure,
+  recordInvalidChunk,
+} from '../telemetry/metrics.js';
 
 /**
  * Options for retrying due to invalid content from the model.
@@ -39,7 +44,6 @@ const INVALID_CONTENT_RETRY_OPTIONS: ContentRetryOptions = {
   maxAttempts: 3, // 1 initial call + 2 retries
   initialDelayMs: 500,
 };
-
 /**
  * Returns true if the response is valid, false otherwise.
  */
@@ -350,7 +354,7 @@ export class GeminiChat {
 
         for (
           let attempt = 0;
-          attempt <= INVALID_CONTENT_RETRY_OPTIONS.maxAttempts;
+          attempt < INVALID_CONTENT_RETRY_OPTIONS.maxAttempts;
           attempt++
         ) {
           try {
@@ -374,6 +378,7 @@ export class GeminiChat {
             if (isContentError) {
               // Check if we have more attempts left.
               if (attempt < INVALID_CONTENT_RETRY_OPTIONS.maxAttempts - 1) {
+                recordContentRetry(self.config);
                 await new Promise((res) =>
                   setTimeout(
                     res,
@@ -389,6 +394,9 @@ export class GeminiChat {
         }
 
         if (lastError) {
+          if (lastError instanceof EmptyStreamError) {
+            recordContentRetryFailure(self.config);
+          }
           // If the stream fails, remove the user message that was added.
           if (self.history[self.history.length - 1] === userContent) {
             self.history.pop();
@@ -546,6 +554,7 @@ export class GeminiChat {
           }
         }
       } else {
+        recordInvalidChunk(this.config);
         isStreamInvalid = true;
       }
       yield chunk; // Yield every chunk to the UI immediately.

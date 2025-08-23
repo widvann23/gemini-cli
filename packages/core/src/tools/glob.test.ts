@@ -30,6 +30,9 @@ describe('GlobTool', () => {
     getFileFilteringRespectGitIgnore: () => true,
     getTargetDir: () => tempRootDir,
     getWorkspaceContext: () => createMockWorkspaceContext(tempRootDir),
+    getFileExclusions: () => ({
+      getGlobExcludes: () => [],
+    }),
   } as unknown as Config;
 
   beforeEach(async () => {
