@@ -76,6 +76,58 @@ describe('GeminiChat', () => {
   });
 
   describe('sendMessage', () => {
+    it('should maintain alternating history when a tool-use turn is followed by an empty model response', async () => {
+      // 1. Setup: Create a history ending with a user's tool response.
+      // This is the state right before the model is expected to reply.
+      const functionCallTurn: Content = {
+        role: 'model',
+        parts: [{ functionCall: { name: 'test_tool', args: {} } }],
+      };
+      const functionResponseTurn: Content = {
+        role: 'user',
+        parts: [{ functionResponse: { name: 'test_tool', response: {} } }],
+      };
+      chat.addHistory({ role: 'user', parts: [{ text: 'Initial prompt' }] });
+      chat.addHistory(functionCallTurn);
+      chat.addHistory(functionResponseTurn);
+
+      // 2. Mock the API to return a response that is "empty" from a content perspective
+      // (i.e., it only contains a 'thought' that will be filtered out).
+      const emptyModelResponse = {
+        candidates: [
+          {
+            content: {
+              parts: [{ thought: 'I have processed the tool response.' }],
+              role: 'model',
+            },
+          },
+        ],
+      } as unknown as GenerateContentResponse;
+      vi.mocked(mockModelsModule.generateContent).mockResolvedValue(
+        emptyModelResponse,
+      );
+
+      // 3. Action: Send a new, regular user prompt. This action triggers the recording
+      // of the previous turn's history (the tool response + the model's empty reply).
+      await chat.sendMessage({ message: 'Next question' }, 'prompt-id-1');
+
+      // 4. Assert: Check the final state of the history.
+      const history = chat.getHistory();
+
+      // With the fix, an empty model turn should have been inserted to maintain the alternating pattern.
+      // The history should be: [user, model(tool_call), user(tool_response), model(empty), user(new_prompt)]
+      expect(history.length).toBe(5);
+
+      // Crucially, the second-to-last turn must be the empty model response.
+      const secondToLastTurn = history[history.length - 2];
+      expect(secondToLastTurn?.role).toBe('model');
+      expect(secondToLastTurn?.parts.length).toBe(0);
+
+      // The final turn should be the new user prompt.
+      const lastTurn = history[history.length - 1];
+      expect(lastTurn?.role).toBe('user');
+      expect(lastTurn?.parts[0]?.text).toBe('Next question');
+    });
     it('should call generateContent with the correct parameters', async () => {
       const response = {
         candidates: [

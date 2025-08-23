@@ -608,11 +608,13 @@ export class GeminiChat {
     if (nonThoughtModelOutput.length > 0) {
       outputContents = nonThoughtModelOutput;
     } else if (
-      modelOutput.length === 0 &&
-      !isFunctionResponse(userInput) &&
-      !automaticFunctionCallingHistory
+      !automaticFunctionCallingHistory &&
+      (isFunctionResponse(userInput) || modelOutput.length === 0)
     ) {
-      // Add an empty model response if the model truly returned nothing.
+      // FIX: This condition now correctly adds an empty model turn if:
+      // 1. The user sent a tool response (isFunctionResponse is true), which MUST be followed by a model turn.
+      // 2. The model genuinely returned nothing (modelOutput.length is 0).
+      // It correctly does NOT add a turn if the model only returned a "thought".
       outputContents.push({ role: 'model', parts: [] } as Content);
     }
 
