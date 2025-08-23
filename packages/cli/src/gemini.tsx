@@ -116,7 +116,7 @@ const InitializingComponent = ({ initialTotal }: { initialTotal: number }) => {
 
   useEffect(() => {
     const onStart = ({ count }: { count: number }) => setTotal(count);
-    const onChange = ({ current }: { current: number }) => {
+    const onChange = () => {
       setConnected((val) => val + 1);
     };
 
