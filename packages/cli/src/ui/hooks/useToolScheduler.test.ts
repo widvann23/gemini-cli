@@ -48,6 +48,7 @@ vi.mock('@google/gemini-cli-core', async () => {
 
 const mockToolRegistry = {
   getTool: vi.fn(),
+  getAllToolNames: vi.fn(() => ['mockTool', 'anotherTool']),
 };
 
 const mockConfig = {

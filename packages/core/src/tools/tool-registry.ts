@@ -442,6 +442,13 @@ export class ToolRegistry {
   /**
    * Returns an array of all registered and discovered tool instances.
    */
+  getAllToolNames(): string[] {
+    return Array.from(this.tools.keys());
+  }
+
+  /**
+   * Returns an array of all registered and discovered tool instances.
+   */
   getAllTools(): AnyDeclarativeTool[] {
     return Array.from(this.tools.values()).sort((a, b) =>
       a.displayName.localeCompare(b.displayName),

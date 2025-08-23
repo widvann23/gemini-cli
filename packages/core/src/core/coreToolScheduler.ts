@@ -538,12 +538,37 @@ export class CoreToolScheduler {
         (reqInfo): ToolCall => {
           const toolInstance = this.toolRegistry.getTool(reqInfo.name);
           if (!toolInstance) {
+            const allToolNames = this.toolRegistry.getAllToolNames();
+
+            const matches = allToolNames.map((toolName) => ({
+              name: toolName,
+              distance: levenshtein(reqInfo.name, toolName),
+            }));
+
+            matches.sort((a, b) => a.distance - b.distance);
+
+            const top3 = matches.slice(0, 3);
+
+            let suggestion = '';
+            if (top3.length > 0) {
+              const suggestedNames = top3
+                .map((match) => `"${match.name}"`)
+                .join(', ');
+              if (top3.length > 1) {
+                suggestion = ` Did you mean one of: ${suggestedNames}?`;
+              } else {
+                suggestion = ` Did you mean ${suggestedNames}?`;
+              }
+            }
+
+            // const availableTools = allToolNames.join(', ');
+            const errorMessage = `Tool "${reqInfo.name}" not found in registry. Tools must use the exact names that are registered, without prefixes.${suggestion}`;
             return {
               status: 'error',
               request: reqInfo,
               response: createErrorResponse(
                 reqInfo,
-                new Error(`Tool "${reqInfo.name}" not found in registry.`),
+                new Error(errorMessage),
                 ToolErrorType.TOOL_NOT_REGISTERED,
               ),
               durationMs: 0,
@@ -962,4 +987,45 @@ export class CoreToolScheduler {
       }
     }
   }
+}
+
+/**
+ * Calculates the Levenshtein distance between two strings.
+ * @param a The first string.
+ * @param b The second string.
+ * @returns The Levenshtein distance.
+ */
+function levenshtein(a: string, b: string): number {
+  const an = a ? a.length : 0;
+  const bn = b ? b.length : 0;
+  if (an === 0) {
+    return bn;
+  }
+  if (bn === 0) {
+    return an;
+  }
+  const matrix = new Array<number[]>(bn + 1);
+  for (let i = 0; i <= bn; ++i) {
+    const row = (matrix[i] = new Array<number>(an + 1));
+    row[0] = i;
+  }
+  const firstRow = matrix[0];
+  for (let j = 1; j <= an; ++j) {
+    firstRow[j] = j;
+  }
+  for (let i = 1; i <= bn; ++i) {
+    for (let j = 1; j <= an; ++j) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] =
+          Math.min(
+            matrix[i - 1][j - 1], // substitution
+            matrix[i][j - 1], // insertion
+            matrix[i - 1][j], // deletion
+          ) + 1;
+      }
+    }
+  }
+  return matrix[bn][an];
 }
